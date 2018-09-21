@@ -4,21 +4,11 @@
 
 @section ("conteudo")
 
-<div class="container" style="margin-top: 50px">
+<div class="container topoConteudo">
 	
-	<h2 class="text-center" style="margin-bottom: 50px">Conselho Curador</h2>
+	<h2 class="text-center text-muted" style="margin-bottom: 50px">Conselho Curador</h2>
+	
 	<div class="row">
-	<a class="btn btn-primary" title="Adicionar" href="{{route('admin.conselho-curador.adicionar')}}"><i class="fas fa-plus-circle"></i> Adicionar pauta</a>
-		<div class="col-sm-12">
-			<form action="{{route('admin.conselho-curador.pesquisar')}}"  class="form-inline my-2 my-lg-0 btn_pesquisar" method="POST">
-				{{csrf_field()}}
-				<input name="texto" class="form-control mr-sm-2" type="search" placeholder="Pesquisar" aria-label="Pesquisar">
-				<button class="btn btn-outline-primary my-2 my-sm-0" type="submit"><i class="fas fa-search"></i></button>
-			</form>
-		</div>
-	</div>
-	<div class="row">
-
 		
 		@if(session()->has('message'))
 		<div class="mensagem">
@@ -28,38 +18,47 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			
 		</div>
 		@endif
 		<table class="table table-hover" >
 			<thead>
 				<tr>
+
 					<th>Pauta</th>
-					<th>Data</th>
+					<th>Tópico</th>
+					<th>Data da Publicação</th>
 					<th>Ação</th>
 				</tr>
 			</thead>
 			<tbody>
-				
+				@if (count($registros)>0)
 				@foreach($registros as $registro)
-
+				
 				<tr>
-					
 					<td>{{$registro->finalidade}}</td>
-					<td>{{date('d/m/Y', strtotime($registro->data))}}</td>
+					<td>{{$registro->titulo}}</td>
+					<td>{{date('d/m/Y', strtotime($registro->created_at))}}</td>
 					<td>
-						<a class="btn btn-success" title="Editar pauta" href="{{route('admin.conselho-curador.editar', $registro->id)}}"><i class="fas fa-edit"></i></a>
-						<a class="btn btn-danger" title="Deletar pauta" href="{{route('admin.conselho-curador.deletar', $registro->id)}}"><i class="fas fa-trash-alt"></i></a>
-						<a class="btn btn-primary" title="Adicionar tópicos" href="{{route('admin.conselho-curador.adicionar-topicos', $registro->id)}}"><i class="fas fa-plus-circle"></i></a>
-						<a class="btn btn-secondary" title="Visualizar tópicos" href="{{route('admin.conselho-curador.visualizartopicos', $registro->id)}}"><i class="fas fa-search"></i></a>
+						<a class="btn btn-success" title="Editar pauta" href="{{route('admin.conselho-curador.editar-topicos', $registro->id)}}"><i class="fas fa-edit"></i></a>
+						<a class="btn btn-danger" title="Deletar pauta" href="{{route('admin.conselho-curador.deletar-topicos', $registro->id)}}"><i class="fas fa-trash-alt"></i></a>
+						<a class="btn btn-primary" title="Adicionar documentos" href="{{route('admin.conselho-curador.adicionar-documentos', $registro->id)}}"><i class="fas fa-plus-circle"></i></a>
+						<a class="btn btn-secondary" title="Visualizar documentos" href="{{route('admin.conselho-curador.visualizar-documentos', $registro->id)}}"><i class="fas fa-search"></i></a>
 						<!--<a class="btn btn-secondary" title="Log de acesso" href="{{route('admin.conselho-curador.visualizartopicos', $registro->id)}}"><i class="fas fa-file-alt"></i></a> -->
 					</td>
 				</tr>
+				
 				@endforeach
+				@else
+				<tr>
+					
+					<td>Nenhum registro encontrado</td>
+
+				</tr>
+				@endif
 
 			</tbody>
 		</table>
-	<a class="btn btn-primary" title="Voltar" href="{{route('conselho-curador')}}"><i class="fas fa-arrow-circle-left"></i> Voltar</a>
+	<a class="btn btn-primary" title="Voltar" href="{{route('admin.conselho-curador')}}"><i class="fas fa-arrow-circle-left"></i> Voltar</a>
 	{{--$registros->links('vendor.pagination.bootstrap-4')--}}
 	</div>
 	

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\conselho;
+use App\reuniao;
 use App\topico;
 use App\documento;
+use App\download;
 use DB;
 use Carbon\Carbon;
 
@@ -15,23 +16,42 @@ use Carbon\Carbon;
 class ConselhoController extends Controller
 {
     
-	
-     public function pesquisar(Request $req)
+	public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
+
+   
+    private $paginate = 5;
+
+    public function pesquisar(Request $req)
     {
 
+       
         $texto = $req->texto;
-        $teste = Carbon::createFromFormat('d-m-Y', 'data');
-        dd($teste);
-        $registros = conselho::where('finalidade', 'like', "%{$texto}%")
-        ->orwhere(Carbon::createFromFormat('d-m-Y', 'data'), 'like', "%$texto%")->get();
+        
+        /*$data = Carbon::createFromFormat('d/m/Y', $texto)->toDateString();
+        $registros = conselho::where('data', 'like', "%{$data}%")->get(); */
+        //$registros = topico::where('titulo', 'like', "%{$texto}%")->get(); 
 
+        $registros = DB::table('topicos')
+            ->select('topicos.id','finalidade', 'titulo', 'topicos.created_at', 'conselho_id')
+            ->join('reunioes', 'reunioes.id', '=', 'conselho_id')
+            ->where([
+                ['titulo', 'like',"%{$texto}%"],
+                ['grupo', 'Conselho Curador'],
+            ])
+            ->get(); 
+        
         return view("admin.conselho-curador.pesquisar", compact("registros"));
 
     }
 
     public function index()
     {
-    	$registros = DB::table('conselhos')->where('grupo','Conselho Curador')->orderBy('data', 'desc')->paginate(6);
+    	
+        $registros = reuniao::where('grupo','Conselho Curador')->orderBy('data', 'desc')->paginate($this->paginate);
     	//$registros = conselho::orderBy('data','desc')->paginate(5);
     	return view("admin.conselho-curador.index", compact("registros"));
     }
@@ -45,37 +65,41 @@ class ConselhoController extends Controller
 
     public function salvar(Request $req)
     {
-    	$dados = $req->all();
-    	conselho::create($dados);
-	   	return redirect()->route('admin.conselho-curador')->with('message', 'Finalidade adicionada com sucesso');
+    	
+        $dados = $req->all();
+        $data = $dados['data'];
+        $dados['data'] = Carbon::createFromFormat('d/m/Y', $data)->toDateString();
+        reuniao::create($dados);
+	   	return redirect()->route('admin.conselho-curador')->with('message', 'Reunião adicionada com sucesso');
     }
 
     public function editar($id)
 	{
-		$registro = conselho::find($id);
+		$registro = reuniao::find($id);
 		return view('admin.conselho-curador.editar', compact('registro'));
 	}
 
      public function deletar($id)
     {
-       	conselho::find($id)->delete();
-       	return redirect()->route('admin.conselho-curador')->with('message', 'Finalidade excluída com sucesso'); 
+       	reuniao::find($id)->delete();
+       	return redirect()->route('admin.conselho-curador')->with('message', 'Reunião excluída com sucesso'); 
     }
 
 
     public function atualizar(Request $req, $id)
     {
 		$dados = $req->all();
-		conselho::find($id)->update($dados);
-
-		return redirect()->route('admin.conselho-curador')->with('message', 'Finalidade atualizada com sucesso');    
+        $data = $dados['data'];
+        $dados['data'] = Carbon::createFromFormat('d/m/Y', $data)->toDateString();
+		reuniao::find($id)->update($dados);
+		return redirect()->route('admin.conselho-curador')->with('message', 'Reunião atualizada com sucesso');    
 	}
 
 
 
     public function visualizarTopicos($id)
     {
-    	$reuniao = conselho::find($id);
+    	$reuniao = reuniao::find($id);
     	
     	//$topicos = conselho::find($id)->topico;
     	$topicos = DB::table('topicos')->where('conselho_id',($id))->orderBy('ordenacao')->get();
@@ -87,7 +111,7 @@ class ConselhoController extends Controller
     public function adicionarTopicos($id)
 	{
 		
-		$registro = conselho::find($id);
+		$registro = reuniao::find($id);
 		return view("admin.conselho-curador.adicionar-topicos", compact("registro"));
 	}
 
@@ -117,10 +141,12 @@ class ConselhoController extends Controller
 
      		foreach ($req->documentos as $documento) {
      			
-     			$num = rand(1111,9999);
-                $extensao = $documento->getClientOriginalExtension();
-                $nomearquivo = "documento_" . $num . "." . $extensao;
-                //$documento->getClientOriginalName();
+     			//$num = rand(1111,9999);
+                $nomearquivo = $documento->getClientOriginalName();
+
+                //$extensao = $documento->getClientOriginalExtension();
+                //$nomearquivo = "documento_" . $num . "." . $extensao;
+                
      			$diretorio = "arquivo/conselho-curador";
      			$documento->move($diretorio,$nomearquivo);
      			$dados['documentos'] = $diretorio . "/" . $nomearquivo;
@@ -154,6 +180,17 @@ class ConselhoController extends Controller
        	return redirect()->route('admin.conselho-curador.visualizar-documentos', $id_topico)->with('message', 'Documento excluído com sucesso');
     }
 
+
+    public function logDocumentos($id)
+    {
+        
+        $reuniao = reuniao::find($id)->finalidade;
+        $registros = download::where('conselho_id', $id)->orderBy('created_at', 'desc')->paginate($this->paginate);
+        
+        return view('admin.conselho-curador.log-documentos', compact('registros', 'reuniao'));
+
+    }
+
     public function editarTopicos($id)
 	{
 
@@ -164,7 +201,7 @@ class ConselhoController extends Controller
 
 	public function atualizarTopicos(Request $req, $id)
 	{
-		$id_conselho = topico::find($id)->conselho;
+		$id_conselho = topico::find($id)->conselho_id;
 
 		$dados = $req->all();
 		topico::find($id)->update($dados);
@@ -174,9 +211,9 @@ class ConselhoController extends Controller
 	 public function deletarTopicos($id)
     {
 
-       	$id_conselho = topico::find($id)->conselho['id'];
-       	
-    	topico::find($id)->delete();
+       	$id_conselho = topico::find($id);
+        $id_conselho = $id_conselho->conselho_id;
+       	topico::find($id)->delete();
        	return redirect()->route('admin.conselho-curador.visualizartopicos', $id_conselho)->with('message', 'Tópico excluído com sucesso'); 
     }
 }

@@ -3,8 +3,8 @@
 @section ("titulo", "Conselho Curador")
 
 @section('conteudo')
-<div class="container" style="margin-top: 50px;">
-    <h3 class="text-center">Adicionar Pauta</h3>
+<div class="container topoConteudo">
+    <h3 class="text-center mb-5 text-muted" >Adicionar Reunião</h3>
     
         <form action="{{route('admin.conselho-curador.salvar')}}" method="post" enctype="multipart/form-data">
             {{csrf_field()}}

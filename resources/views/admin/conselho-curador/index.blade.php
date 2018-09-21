@@ -4,19 +4,22 @@
 
 @section ("conteudo")
 
-<div class="container" style="margin-top: 50px">
+<div class="container topoConteudo">
 	
-	<h2 class="text-center" style="margin-bottom: 50px">Conselho Curador</h2>
+	<h2 class="text-center mb-5 text-muted">Conselho Curador</h2>
+	
 		
-	<a class="btn btn-primary" title="Adicionar" href="{{route('admin.conselho-curador.adicionar')}}"><i class="fas fa-plus-circle"></i> Adicionar finalidade</a>
 	<div class="row">
 		<div class="col-sm-12">
 			<form action="{{route('admin.conselho-curador.pesquisar')}}"  class="form-inline my-2 my-lg-0 btn_pesquisar" method="POST">
 				{{csrf_field()}}
-				<input name="texto" class="form-control mr-sm-2" type="search" placeholder="Pesquisar" aria-label="Pesquisar">
+				<input name="texto" class="form-control mr-sm-2" type="search" placeholder="Pesquisa por tópico" aria-label="Pesquisar">
 				<button class="btn btn-outline-primary my-2 my-sm-0" type="submit"><i class="fas fa-search"></i></button>
 			</form>
 		</div>
+	</div>
+	<div class="row mb-3">
+	<a class="btn btn-primary" title="Adicionar" href="{{route('admin.conselho-curador.adicionar')}}"><i class="fas fa-plus-circle"></i> Adicionar reunião</a>
 	</div>
 	<div class="row">
 
@@ -32,10 +35,11 @@
 			
 		</div>
 		@endif
+		<div class="table-responsive">
 		<table class="table table-hover" >
 			<thead>
 				<tr>
-					<th>Finalidade</th>
+					<th>Reunião</th>
 					<th>Data</th>
 					<th>Ação</th>
 				</tr>
@@ -49,18 +53,24 @@
 					<td>{{$registro->finalidade}}</td>
 					<td>{{date('d/m/Y', strtotime($registro->data))}}</td>
 					<td>
-						<a class="btn btn-success" title="Editar pauta" href="{{route('admin.conselho-curador.editar', $registro->id)}}"><i class="fas fa-edit"></i></a>
-						<a class="btn btn-danger" title="Deletar pauta" href="{{route('admin.conselho-curador.deletar', $registro->id)}}"><i class="fas fa-trash-alt"></i></a>
+						<a class="btn btn-success" title="Editar reunião" href="{{route('admin.conselho-curador.editar', $registro->id)}}"><i class="fas fa-edit"></i></a>
+						<a class="btn btn-danger" title="Deletar reunião" href="{{route('admin.conselho-curador.deletar', $registro->id)}}"><i class="fas fa-trash-alt"></i></a>
 						<a class="btn btn-primary" title="Adicionar tópicos" href="{{route('admin.conselho-curador.adicionar-topicos', $registro->id)}}"><i class="fas fa-plus-circle"></i></a>
 						<a class="btn btn-secondary" title="Visualizar tópicos" href="{{route('admin.conselho-curador.visualizartopicos', $registro->id)}}"><i class="fas fa-search"></i></a>
-						<!--<a class="btn btn-secondary" title="Log de acesso" href="{{route('admin.conselho-curador.visualizartopicos', $registro->id)}}"><i class="fas fa-file-alt"></i></a> -->
+						<a class="btn btn-secondary" title="Log" href="{{route('admin.conselho-curador.log-documentos', $registro->id)}}"><i class="fas fa-file-alt"></i></a>
+					
 					</td>
 				</tr>
 				@endforeach
 
 			</tbody>
 		</table>
-	{{$registros->links('vendor.pagination.bootstrap-4')}}
+		</div>
+
+	<div class="mx-auto">
+	{{ $registros->links('vendor.pagination.bootstrap-4') }}
+	</div>
+
 	</div>
 	
 </div>

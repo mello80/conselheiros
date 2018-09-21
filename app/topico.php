@@ -16,9 +16,9 @@ class topico extends Model
 
 	];
 
-    public function conselho(){
+    public function reuniao(){
     	//pertence a tabela conselho 
-        return $this->belongsTo(conselho::class, 'conselho_id');
+        return $this->belongsTo(reuniao::class, 'conselho_id');
 
     }
 

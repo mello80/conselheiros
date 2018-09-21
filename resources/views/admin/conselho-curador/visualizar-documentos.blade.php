@@ -4,14 +4,14 @@
 
 @section ("conteudo")
 
-<div class="container" style="margin-top: 50px">
-	<h2 class="text-center" style="margin-bottom: 50px">Documentos</h2>
+<div class="container topoConteudo">
+	<h2 class="text-center mb-5 text-muted">Documentos</h2>
 
 	
 		
 		<div class="card bg-light mb-3">
 			<div class="card-header text-center">
-				<h4>{{$topico->titulo}}</h4>
+				<h5>{{$topico->titulo}}</h5>
 			</div>
 		</div>	
 		@if(session()->has('message'))
@@ -29,12 +29,13 @@
 			<thead>
 				<tr>
 					
-					<th>Documentos</th>
+					<th>Nome</th>
 					<th>Data da publicação</th>
 					<th>Ação</th>
 				</tr>
 			</thead>
 			<tbody>
+				@if (count($documentos)>0)
 				@foreach($documentos as $documento)
 				<tr>
 					@if(isset($documento->documentos))
@@ -46,14 +47,23 @@
 					<td>
 						
 						<a class="btn btn-danger" title="Deletar" href="{{route('admin.conselho-curador.deletar-documentos', $documento->id)}}"><i class="fas fa-trash-alt"></i></a>
+						
 					</td>
 				</tr>
 				@endforeach
+				@else
+				<tr>
+					
+					<td>Nenhum arquivo encontrado</td>
+
+				</tr>
+				@endif
 			</tbody>
 		</table>
 		<a class="btn btn-primary" title="Voltar" href="{{ route('admin.conselho-curador.visualizartopicos', $topico->conselho_id) }}"><i class="fas fa-arrow-circle-left"></i> Voltar</a>
 	
 
 </div>
+
 
 @endsection
